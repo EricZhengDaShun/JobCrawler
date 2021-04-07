@@ -1,4 +1,75 @@
 {
-    "name": "Jacky",
-    "age": 25
+  "url": {
+    "path": "https://www.104.com.tw/jobs/search/?ro=0&jobcat=2007001000&keyword=c%23&expansionType=area%2Cspec%2Ccom%2Cjob%2Cwf%2Cwktm&area=6001001000%2C6001002000&edu=4&order=1&asc=0&page=1&mode=s&jobsource=2018indexpoc",
+    "pageNum": 30
+  },
+  "filterSwitch": {
+    "toolEnable": true,
+    "jobTitleEnable": false,
+    "jobContentEnable": true
+  },
+  "dataSetting": {
+    "useFile": true,
+    "saveData": true,
+    "fileName": "jobInfoRawData.json"
+  },
+  "tool": {
+    "include": [
+      "C++"
+    ],
+    "exclude": [
+      "Java",
+      "Assembly",
+      "PHP",
+      "MFC",
+      "JSP",
+      "Go",
+      "Objective-C"
+    ]
+  },
+  "title": {
+    "include": [
+      "Embedded"
+    ],
+    "exclude": [
+      "BIOS"
+    ]
+  },
+  "jobContent": {
+    "include": [
+      "net core"
+    ],
+    "exclude": [
+
+    ]
+  },
+  "htmlTag": {
+    "jobLink": {
+      "tagType": "a",
+      "attributeName": "class",
+      "attributeValue": "js-job-link ",
+      "contentAttribute": "href"
+    },
+    "tool": {
+      "tagType": "u",
+      "attributeName": "data-v-726fdbe7",
+      "attributeValue": ""
+    },
+    "jobTitle": {
+      "tagType": "h1",
+      "attributeName": "class",
+      "attributeValue": "pr-6 text-break",
+      "contentAttribute": "title"
+    },
+    "salary": {
+      "tagType": "p",
+      "attributeName": "class",
+      "attributeValue": "t3 mb-0 mr-2 monthly-salary text-primary font-weight-bold float-left"
+    },
+    "jobContent": {
+      "tagType": "p",
+      "attributeName": "class",
+      "attributeValue": "mb-5 r3 job-description__content text-break"
+    }
+  }
 }

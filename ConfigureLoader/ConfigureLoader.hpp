@@ -2,59 +2,96 @@
 
 #include <string>
 #include <vector>
+#include <exception>
 
 namespace JobCrawler {
 
-    struct UrlSetting
-    {
-        std::wstring url;
-        size_t page;
-    };
+    namespace Setting {
+        struct Url
+        {
+            std::wstring url;
+            size_t pageNum;
 
-    struct ToolSetting
-    {
-        std::vector<std::wstring> include;
-        std::vector<std::wstring> exclude;
-    };
+            Url()
+                : pageNum(0) {
 
-    struct JobLinkTag
+            }
+        };
+
+        struct FilterSwitch
+        {
+            bool toolEnable;
+            bool jobTitleEnable;
+            bool jobContentEnable;
+
+            FilterSwitch()
+                : toolEnable(false)
+                , jobTitleEnable(false)
+                , jobContentEnable(false) {
+
+            }
+        };
+
+        struct DataSetting
+        {
+            bool useFile;
+            bool saveData;
+            std::wstring fileName;
+
+            DataSetting()
+                : useFile(false)
+                , saveData(false) {
+
+            }
+        };
+
+        struct Tool
+        {
+            std::vector<std::wstring> include;
+            std::vector<std::wstring> exclude;
+        };
+
+        struct Title
+        {
+            std::vector<std::wstring> include;
+            std::vector<std::wstring> exclude;
+        };
+
+        struct JobContent
+        {
+            std::vector<std::wstring> include;
+            std::vector<std::wstring> exclude;
+        };
+    }
+
+    struct HTMLTag
     {
         std::wstring tagType;
         std::wstring attributeName;
         std::wstring attributeValue;
+    };
+
+    struct HTMLTagContent : public HTMLTag
+    {
         std::wstring contentAttribute;
     };
 
-    struct ToolTag
+    class ConfigureException : public std::exception
     {
-        std::wstring tagType;
-        std::wstring attributeName;
-        std::wstring attributeValue;
+    public:
+        explicit ConfigureException(const std::string& msg)
+            : message(msg) {
 
+        }
+
+        const char* what() const throw()
+        {
+            return message.c_str();
+        }
+
+    private:
+        std::string message;
     };
-
-    struct JobTitle
-    {
-        std::wstring tagType;
-        std::wstring attributeName;
-        std::wstring attributeValue;
-    };
-
-    struct Salary
-    {
-        std::wstring tagType;
-        std::wstring attributeName;
-        std::wstring attributeValue;
-    };
-
-    struct HtmlTag
-    {
-        JobLinkTag jobLinkTag;
-        ToolTag toolTag;
-        JobTitle jobTitle;
-        Salary salary;
-    };
-
 
     class ConfigureLoader final
     {
@@ -68,6 +105,17 @@ namespace JobCrawler {
 
     private:
         std::wstring configureFileName;
+        Setting::Url url;
+        Setting::FilterSwitch filterSwitch;
+        Setting::DataSetting dataSetting;
+        Setting::Tool tool;
+        Setting::Title title;
+        Setting::JobContent jobContent;
+        HTMLTagContent jobLinkHTML;
+        HTMLTag toolHTML;
+        HTMLTagContent jobTitleHTML;
+        HTMLTag salaryHTML;
+        HTMLTag jobContentHTML;
     };
 
 }

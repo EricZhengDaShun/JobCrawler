@@ -2,28 +2,15 @@
 
 #include <string>
 #include <locale>
+#include <cuchar>
 #include <exception>
 
 namespace Convert {
 
-    class ConvertLocaleException : public std::exception
-    {
-    public:
-        virtual const char* what() const
-#ifdef _GLIBCXX_NOTHROW
-        _GLIBCXX_NOTHROW
-#endif
-        {
-            return "Convert must be set locale";
-        }
-    };
-
-
-
     template<typename T = std::wstring, typename U = std::string>
     inline U wcharToUtf8(const T& source) {
-        if (std::locale().name() == "C") {
-            ConvertLocaleException e;
+        if (std::locale().name() == std::locale().classic().name()) {
+            std::exception e("Convert must be set global locale");
             throw e;
         }
 
@@ -46,8 +33,8 @@ namespace Convert {
 
     template<typename T = std::string, typename U = std::wstring>
     inline U utf8ToWchar(const T& source) {
-        if (std::locale().name() == "C") {
-            ConvertLocaleException e;
+        if (std::locale().name() == std::locale().classic().name()) {
+            std::exception e("Convert must be set global locale");
             throw e;
         }
 

@@ -2,6 +2,7 @@
 #include <string>
 #include <locale>
 #include <exception>
+#include <vector>
 
 #include "FileHelper.hpp"
 
