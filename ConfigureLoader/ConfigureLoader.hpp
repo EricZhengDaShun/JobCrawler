@@ -51,7 +51,7 @@ namespace JobCrawler {
             std::vector<std::wstring> exclude;
         };
 
-        struct Title
+        struct JobTitle
         {
             std::vector<std::wstring> include;
             std::vector<std::wstring> exclude;
@@ -103,14 +103,42 @@ namespace JobCrawler {
 
         void parse();
 
+        void save();
+
+        Setting::Url getSettingUrl() const;
+        void setSettingUrl(const Setting::Url& url);
+        Setting::FilterSwitch getSettingFilterSwitch() const;
+        void setSettingFilterSwitch(const Setting::FilterSwitch& filterSwitch);
+        Setting::DataSetting getSettingDataSetting() const;
+        void setSettingDataSetting(const Setting::DataSetting& dataSetting);
+        Setting::Tool getSettingTool() const;
+        void setSettingTool(const Setting::Tool& tool);
+        Setting::JobTitle getSettingJobTitle() const;
+        void setSettingJobTitle(const Setting::JobTitle& JobTitle);
+        Setting::JobContent getSettingJobContent() const;
+        void setSettingJobContent(const Setting::JobContent& jobContent);
+
+        HTMLTagContent getJobLinkHTML() const;
+        void setJobLinkHTML(const HTMLTagContent& jobLinkHTML);
+        HTMLTag getToolHTML() const;
+        void setToolHTML(const HTMLTag& toolHTML);
+        HTMLTagContent getJobTitleHTML() const;
+        void setJobTitleHTML(const HTMLTagContent& jobTitleHTML);
+        HTMLTag getSalaryHTML() const;
+        void setSalaryHTML(const HTMLTag& salaryHTML);
+        HTMLTag getJobContentHTML() const;
+        void setJobContentHTML(const HTMLTag& jobContentHTML);
+
     private:
         std::wstring configureFileName;
+
         Setting::Url url;
         Setting::FilterSwitch filterSwitch;
         Setting::DataSetting dataSetting;
         Setting::Tool tool;
-        Setting::Title title;
+        Setting::JobTitle jobTitle;
         Setting::JobContent jobContent;
+
         HTMLTagContent jobLinkHTML;
         HTMLTag toolHTML;
         HTMLTagContent jobTitleHTML;

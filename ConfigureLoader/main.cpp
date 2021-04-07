@@ -21,6 +21,7 @@ int main()
         configureLoader.setFileName(configureFileName);
         configureLoader.parse();
 
+        configureLoader.save();
         std::cin.ignore();
         return 0;
 
