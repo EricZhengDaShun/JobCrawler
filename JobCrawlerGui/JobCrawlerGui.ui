@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1040</width>
+    <width>1599</width>
     <height>831</height>
    </rect>
   </property>
@@ -25,8 +25,8 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>1001</width>
-      <height>661</height>
+      <width>1561</width>
+      <height>701</height>
      </rect>
     </property>
     <property name="title">
@@ -153,8 +153,8 @@
     <widget class="QGroupBox" name="filterSwitchGroupBox">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>320</y>
+       <x>590</x>
+       <y>100</y>
        <width>201</width>
        <height>151</height>
       </rect>
@@ -189,8 +189,8 @@
     <widget class="QGroupBox" name="dataSettingGroupBox">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>480</y>
+       <x>810</x>
+       <y>100</y>
        <width>421</width>
        <height>152</height>
       </rect>
@@ -232,10 +232,10 @@
     <widget class="QGroupBox" name="toolFilterGroupBox">
      <property name="geometry">
       <rect>
-       <x>580</x>
-       <y>90</y>
-       <width>401</width>
-       <height>311</height>
+       <x>20</x>
+       <y>310</y>
+       <width>501</width>
+       <height>351</height>
       </rect>
      </property>
      <property name="title">
@@ -244,10 +244,10 @@
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>40</y>
-        <width>181</width>
-        <height>251</height>
+        <x>21</x>
+        <y>41</y>
+        <width>231</width>
+        <height>301</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -261,15 +261,29 @@
        <item>
         <widget class="MenuListWidget" name="toolFilterIncludeListWidget"/>
        </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QPushButton" name="toolFilterIncludeAddPushButton">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="toolFilterIncludeAddLineEdit"/>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>210</x>
-        <y>40</y>
-        <width>181</width>
-        <height>251</height>
+        <x>259</x>
+        <y>41</y>
+        <width>221</width>
+        <height>301</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -283,6 +297,190 @@
        <item>
         <widget class="MenuListWidget" name="toolFilterExcludeListWidget"/>
        </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QPushButton" name="toolFilterExcludeAddPushButton">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="toolFilterExcludeAddLineEdit"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="jobTitleFilterGroupBox">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>310</y>
+       <width>501</width>
+       <height>351</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>JobTitleFilter</string>
+     </property>
+     <widget class="QWidget" name="layoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>21</x>
+        <y>41</y>
+        <width>231</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QLabel" name="jobTitleFilterIncludeLabel">
+         <property name="text">
+          <string>Include:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="MenuListWidget" name="jobTitleFilterIncludeListWidget"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QPushButton" name="jobTitleFilterIncludeAddPushButton">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="jobTitleFilterIncludeAddLineEdit"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>259</x>
+        <y>41</y>
+        <width>221</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QLabel" name="jobTitleFilterExcludeLabel">
+         <property name="text">
+          <string>Exclude:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="MenuListWidget" name="jobTitleFilterExcludeListWidget"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QPushButton" name="jobTitleFilterExcludeAddPushButton">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="jobTitleFilterExcludeAddLineEdit"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="jobContentFilterGroupBox">
+     <property name="geometry">
+      <rect>
+       <x>1040</x>
+       <y>310</y>
+       <width>501</width>
+       <height>351</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>JobContentFilter</string>
+     </property>
+     <widget class="QWidget" name="layoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>21</x>
+        <y>41</y>
+        <width>231</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QLabel" name="jobContentFilterIncludeLabel">
+         <property name="text">
+          <string>Include:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="MenuListWidget" name="jobContentFilterIncludeListWidget"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QPushButton" name="jobContentFilterIncludeAddPushButton">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="jobContentFilterIncludeAddLineEdit"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_5">
+      <property name="geometry">
+       <rect>
+        <x>259</x>
+        <y>41</y>
+        <width>221</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QLabel" name="jobContentFilterExcludeLabel">
+         <property name="text">
+          <string>Exclude:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="MenuListWidget" name="jobContentFilterExcludeListWidget"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="QPushButton" name="jobContentFilterExcludeAddPushButton">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="jobContentFilterExcludeAddLineEdit"/>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -293,7 +491,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1040</width>
+     <width>1599</width>
      <height>32</height>
     </rect>
    </property>

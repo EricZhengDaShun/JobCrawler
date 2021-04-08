@@ -19,6 +19,15 @@ public:
 protected slots:
     void on_configureReloadPushButton_clicked();
 
+    void on_toolFilterIncludeAddPushButton_clicked();
+    void on_toolFilterExcludeAddPushButton_clicked();
+
+    void on_jobTitleFilterIncludeAddPushButton_clicked();
+    void on_jobTitleFilterExcludeAddPushButton_clicked();
+
+    void on_jobContentFilterIncludeAddPushButton_clicked();
+    void on_jobContentFilterExcludeAddPushButton_clicked();
+
 private:
     Ui::JobCrawlerGuiClass ui;
 

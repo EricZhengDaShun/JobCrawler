@@ -58,6 +58,84 @@ void JobCrawlerGui::on_configureReloadPushButton_clicked()
         ui.toolFilterExcludeListWidget->addItem(QString::fromStdWString(v));
     }
 
+    const std::vector<std::wstring> jobTitleIncludes = configureLoader->getSettingJobTitle().include;
+    const std::vector<std::wstring> jobTitleExcludes = configureLoader->getSettingJobTitle().exclude;
+    for (const auto& v : jobTitleIncludes) {
+        ui.jobTitleFilterIncludeListWidget->addItem(QString::fromStdWString(v));
+    }
+    for (const auto& v : jobTitleExcludes) {
+        ui.jobTitleFilterExcludeListWidget->addItem(QString::fromStdWString(v));
+    }
+
+    const std::vector<std::wstring> jobContentIncludes = configureLoader->getSettingJobContent().include;
+    const std::vector<std::wstring> jobContentExcludes = configureLoader->getSettingJobContent().exclude;
+    for (const auto& v : jobContentIncludes) {
+        ui.jobContentFilterIncludeListWidget->addItem(QString::fromStdWString(v));
+    }
+    for (const auto& v : jobContentExcludes) {
+        ui.jobContentFilterExcludeListWidget->addItem(QString::fromStdWString(v));
+    }
+
     ui.statusBar->showMessage(tr("Reload configure file done !"));
+    return;
+}
+
+void JobCrawlerGui::on_toolFilterIncludeAddPushButton_clicked()
+{
+    const QString toolItem = ui.toolFilterIncludeAddLineEdit->text();
+    if (toolItem.isEmpty()) return;
+    ui.toolFilterIncludeListWidget->addItem(toolItem);
+    ui.toolFilterIncludeAddLineEdit->clear();
+
+    return;
+}
+
+void JobCrawlerGui::on_toolFilterExcludeAddPushButton_clicked()
+{
+    const QString toolItem = ui.toolFilterExcludeAddLineEdit->text();
+    if (toolItem.isEmpty()) return;
+    ui.toolFilterExcludeListWidget->addItem(toolItem);
+    ui.toolFilterExcludeAddLineEdit->clear();
+
+    return;
+}
+
+void JobCrawlerGui::on_jobTitleFilterIncludeAddPushButton_clicked()
+{
+    const QString jobTitleItem = ui.jobTitleFilterIncludeAddLineEdit->text();
+    if (jobTitleItem.isEmpty()) return;
+    ui.jobTitleFilterIncludeListWidget->addItem(jobTitleItem);
+    ui.jobTitleFilterIncludeAddLineEdit->clear();
+
+    return;
+}
+
+void JobCrawlerGui::on_jobTitleFilterExcludeAddPushButton_clicked()
+{
+    const QString jobTitleItem = ui.jobTitleFilterExcludeAddLineEdit->text();
+    if (jobTitleItem.isEmpty()) return;
+    ui.jobTitleFilterExcludeListWidget->addItem(jobTitleItem);
+    ui.jobTitleFilterExcludeAddLineEdit->clear();
+
+    return;
+}
+
+void JobCrawlerGui::on_jobContentFilterIncludeAddPushButton_clicked()
+{
+    const QString jobContentItem = ui.jobContentFilterIncludeAddLineEdit->text();
+    if (jobContentItem.isEmpty()) return;
+    ui.jobContentFilterIncludeListWidget->addItem(jobContentItem);
+    ui.jobContentFilterIncludeAddLineEdit->clear();
+
+    return;
+}
+
+void JobCrawlerGui::on_jobContentFilterExcludeAddPushButton_clicked()
+{
+    const QString jobContentItem = ui.jobContentFilterExcludeAddLineEdit->text();
+    if (jobContentItem.isEmpty()) return;
+    ui.jobContentFilterExcludeListWidget->addItem(jobContentItem);
+    ui.jobContentFilterExcludeAddLineEdit->clear();
+
     return;
 }
