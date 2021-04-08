@@ -11,7 +11,7 @@
 #include <qstringlist.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 
-#include "ConfigureLoader.hpp"
+#include "HTMLParser.hpp"
 
 namespace {
     QStringList makeBaseUrlPathToUrlPaths(const QString baseUrl, const int pageNum)
@@ -161,7 +161,7 @@ void JobCrawlerGui::on_configureReloadPushButton_clicked()
     ui.salaryHTMLAttributeNameLineEdit->setText(QString::fromStdWString(salaryAttributeName));
     ui.salaryHTMLAttributeValueLineEdit->setText(QString::fromStdWString(salaryAttributeValue));
 
-
+    saveTagHTML();
     ui.statusBar->showMessage(tr("Reload configure file done !"));
     return;
 }
@@ -227,28 +227,7 @@ void JobCrawlerGui::on_configureSavePushButton_clicked()
     configureLoader->setSettingJobTitle(jobTitle);
 
 
-    HTMLTagContent jobLinkHTML;
-    jobLinkHTML.tagType = ui.jobLinkHTMLTagTypeLineEdit->text().toStdWString();
-    jobLinkHTML.attributeName = ui.jobLinkHTMLAttributeNameLineEdit->text().toStdWString();
-    jobLinkHTML.attributeValue = ui.jobLinkHTMLAttributeValueLineEdit->text().toStdWString();
-    jobLinkHTML.contentAttribute = ui.jobLinkHTMLContentAttributeLineEdit->text().toStdWString();
-    HTMLTagContent jobTitleHTML;
-    jobTitleHTML.tagType = ui.jobTitleHTMLTagTypeLineEdit->text().toStdWString();
-    jobTitleHTML.attributeName = ui.jobTitleHTMLAttributeNameLineEdit->text().toStdWString();
-    jobTitleHTML.attributeValue = ui.jobTitleHTMLAttributeValueLineEdit->text().toStdWString();
-    jobTitleHTML.contentAttribute = ui.jobTitleHTMLContentAttributeLineEdit->text().toStdWString();
-    HTMLTag toolHTML;
-    toolHTML.tagType = ui.toolHTMLTagTypeLineEdit->text().toStdWString();
-    toolHTML.attributeName = ui.toolHTMLAttributeNameLineEdit->text().toStdWString();
-    toolHTML.attributeValue = ui.toolHTMLAttributeValueLineEdit->text().toStdWString();
-    HTMLTag jobContentHTML;
-    jobContentHTML.tagType = ui.jobContentHTMLTagTypeLineEdit->text().toStdWString();
-    jobContentHTML.attributeName = ui.jobContentHTMLAttributeNameLineEdit->text().toStdWString();
-    jobContentHTML.attributeValue = ui.jobContentHTMLAttributeValueLineEdit->text().toStdWString();
-    HTMLTag salaryHTML;
-    salaryHTML.tagType = ui.salaryHTMLTagTypeLineEdit->text().toStdWString();
-    salaryHTML.attributeName = ui.salaryHTMLAttributeNameLineEdit->text().toStdWString();
-    salaryHTML.attributeValue = ui.salaryHTMLAttributeValueLineEdit->text().toStdWString();
+    saveTagHTML();
     configureLoader->setJobLinkHTML(jobLinkHTML);
     configureLoader->setJobTitleHTML(jobTitleHTML);
     configureLoader->setToolHTML(toolHTML);
@@ -345,11 +324,17 @@ void JobCrawlerGui::enableWebDownloadTab()
 
 void JobCrawlerGui::downloadHTMLDone(WebDownloader& webDownloader, QUrl url, QString html)
 {
-    {
+    if(downloadStep == 1){
         std::lock_guard<std::mutex> lockGuard(jobItemUrlsMutex);
         if (!jobItemUrls.empty()) {
             webDownloader.load(jobItemUrls.back().toStdWString());
             jobItemUrls.pop_back();
+        }
+    } else if (downloadStep == 2) {
+        std::lock_guard<std::mutex> lockGuard(jobDescriptionUrlsMutex);
+        if (!jobDescriptionUrls.empty()) {
+            webDownloader.load(jobDescriptionUrls.back().toStdWString());
+            jobDescriptionUrls.pop_back();
         }
     }
 
@@ -370,15 +355,21 @@ void JobCrawlerGui::downloadPage()
 {
     if (downloadStep == 1) {
         ui.webDownloadJobLinkProgressBar->setRange(0, jobItemUrls.size());
-    } else if (downloadStep == 2) {
-        ui.webDownloadJobDescriptionProgressBar->setRange(0, jobItemUrls.size());
-    }
+        std::lock_guard<std::mutex> jobItemLockGuard(jobItemUrlsMutex);
+        for (int count = 0; count < webDownloaders.size(); ++count) {
+            if (jobItemUrls.empty()) break;
+            webDownloaders[count]->load(jobItemUrls.back().toStdWString());
+            jobItemUrls.pop_back();
+        }
 
-    std::lock_guard<std::mutex> jobItemLockGuard(jobItemUrlsMutex);
-    for (int count = 0; count < webDownloaders.size(); ++count) {
-        if (jobItemUrls.empty()) break;
-        webDownloaders[count]->load(jobItemUrls.back().toStdWString());
-        jobItemUrls.pop_back();
+    } else if (downloadStep == 2) {
+        ui.webDownloadJobDescriptionProgressBar->setRange(0, jobDescriptionUrls.size());
+        std::lock_guard<std::mutex> jobbDescriptionLockGuard(jobDescriptionUrlsMutex);
+        for (int count = 0; count < webDownloaders.size(); ++count) {
+            if (jobDescriptionUrls.empty()) break;
+            webDownloaders[count]->load(jobDescriptionUrls.back().toStdWString());
+            jobDescriptionUrls.pop_back();
+        }
     }
 
     return;
@@ -386,6 +377,7 @@ void JobCrawlerGui::downloadPage()
 
 void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
 {
+    downloadStep = 1;
     {
         std::lock_guard<std::mutex> jobItemLockGuard(jobItemUrlsMutex);
         jobItemUrls.clear();
@@ -397,7 +389,6 @@ void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
         webDatas.clear();
     }
     emit startDownloadPage();
-
     while (true) {
         {
             std::lock_guard<std::mutex> lockGuard(webDataMutex);
@@ -406,6 +397,74 @@ void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
+    {
+        std::lock_guard<std::mutex> lockGuard(jobItemWebErrorMutex);
+        jobItemWebError.clear();
+        jobItemWebs.clear();
+        for (const auto& webData : webDatas) {
+            if (webData.html.empty()) {
+                jobItemWebError.push_back(webData.url.toString());
+            } else {
+                jobItemWebs.push_back(webData);
+            }
+        }
+    }
+    webDatas.clear();
+    
+    downloadStep = 2;
+    {
+        std::lock_guard<std::mutex> lockGuard(jobDescriptionUrlsMutex);
+        jobDescriptionUrls.clear();
+
+        HTMLParser htmlParser;
+        for (const auto& jobItemWeb : jobItemWebs) {
+            htmlParser.setHTML(jobItemWeb.html);
+            std::vector<std::string> urls = htmlParser.getAttrValue(jobLinkHTML.tagType
+                , jobLinkHTML.attributeName
+                , jobLinkHTML.attributeValue
+                , jobLinkHTML.contentAttribute);
+            for(const auto& url : urls) {
+                jobDescriptionUrls.push_back(QString::fromStdString("https:" + urls.front()));
+            }
+        }
+    }
+    const size_t jobbDescriptionUrlsNum = jobDescriptionUrls.size();
+    emit startDownloadPage();
+    while (true) {
+        {
+            std::lock_guard<std::mutex> lockGuard(webDataMutex);
+            if (webDatas.size() == jobbDescriptionUrlsNum) break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
     emit downloadPageFinshed();
+    return;
+}
+
+void JobCrawlerGui::saveTagHTML()
+{
+    jobLinkHTML.tagType = ui.jobLinkHTMLTagTypeLineEdit->text().toStdWString();
+    jobLinkHTML.attributeName = ui.jobLinkHTMLAttributeNameLineEdit->text().toStdWString();
+    jobLinkHTML.attributeValue = ui.jobLinkHTMLAttributeValueLineEdit->text().toStdWString();
+    jobLinkHTML.contentAttribute = ui.jobLinkHTMLContentAttributeLineEdit->text().toStdWString();
+
+    jobTitleHTML.tagType = ui.jobTitleHTMLTagTypeLineEdit->text().toStdWString();
+    jobTitleHTML.attributeName = ui.jobTitleHTMLAttributeNameLineEdit->text().toStdWString();
+    jobTitleHTML.attributeValue = ui.jobTitleHTMLAttributeValueLineEdit->text().toStdWString();
+    jobTitleHTML.contentAttribute = ui.jobTitleHTMLContentAttributeLineEdit->text().toStdWString();
+
+    toolHTML.tagType = ui.toolHTMLTagTypeLineEdit->text().toStdWString();
+    toolHTML.attributeName = ui.toolHTMLAttributeNameLineEdit->text().toStdWString();
+    toolHTML.attributeValue = ui.toolHTMLAttributeValueLineEdit->text().toStdWString();
+
+    jobContentHTML.tagType = ui.jobContentHTMLTagTypeLineEdit->text().toStdWString();
+    jobContentHTML.attributeName = ui.jobContentHTMLAttributeNameLineEdit->text().toStdWString();
+    jobContentHTML.attributeValue = ui.jobContentHTMLAttributeValueLineEdit->text().toStdWString();
+
+    salaryHTML.tagType = ui.salaryHTMLTagTypeLineEdit->text().toStdWString();
+    salaryHTML.attributeName = ui.salaryHTMLAttributeNameLineEdit->text().toStdWString();
+    salaryHTML.attributeValue = ui.salaryHTMLAttributeValueLineEdit->text().toStdWString();
+
     return;
 }

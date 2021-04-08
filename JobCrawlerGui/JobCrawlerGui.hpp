@@ -8,10 +8,7 @@
 #include "ui_JobCrawlerGui.h"
 #include "WebDownloader.hpp"
 #include "TimeMeasurer.hpp"
-
-namespace JobCrawler {
-    class ConfigureLoader;
-}
+#include "ConfigureLoader.hpp"
 
 class JobCrawlerGui : public QMainWindow
 {
@@ -48,6 +45,7 @@ private:
 
 private:
     void downloadAllJobItemPage(const QStringList urls);
+    void saveTagHTML();
 
 private:
     struct WebData
@@ -74,4 +72,21 @@ private:
     std::mutex webDataMutex;
 
     size_t downloadStep;
+
+    std::vector<QString> jobItemWebError;
+    std::mutex jobItemWebErrorMutex;
+    std::vector<WebData> jobItemWebs;
+
+    std::vector<QString> jobDescriptionUrls;
+    std::mutex jobDescriptionUrlsMutex;
+
+    std::vector<QString> jobDescriptionError;
+    std::mutex jobDescriptionErrorMutex;
+    std::vector<WebData> jobDescriptionWebs;
+
+    JobCrawler::HTMLTagContent jobLinkHTML;
+    JobCrawler::HTMLTagContent jobTitleHTML;
+    JobCrawler::HTMLTag toolHTML;
+    JobCrawler::HTMLTag jobContentHTML;
+    JobCrawler::HTMLTag salaryHTML;
 };

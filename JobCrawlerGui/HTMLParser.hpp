@@ -35,6 +35,7 @@ public:
 
     std::vector<std::string> getAttrValue(const std::wstring& tagType, const std::wstring& attrName);
     std::vector<std::string> getInnerHTML(const std::wstring& tagType, const std::wstring& attrName, const std::wstring& attrValue);
+    std::vector<std::string> getAttrValue(const std::wstring& tagType, const std::wstring& attrName, const std::wstring& attrValue, const std::wstring& targetAttrName);
 
 private:
     std::vector<GumboNode*> filterNode(const std::wstring& tagType, const std::wstring& attrName, const std::wstring& attrValue);

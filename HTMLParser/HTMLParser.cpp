@@ -151,6 +151,17 @@ std::vector<std::string> HTMLParser::getInnerHTML(const std::wstring& tagType, c
     return result;
 }
 
+std::vector<std::string> HTMLParser::getAttrValue(const std::wstring& tagType, const std::wstring& attrName, const std::wstring& attrValue, const std::wstring& targetAttrName)
+{
+    std::vector<GumboNode*> nodeBuf = filterNode(tagType, attrName, attrValue);
+    std::vector<std::string> result;
+    for (auto& node : nodeBuf) {
+        auto v = ::getAttrValue(node, ::wstringToGumboTag(tagType), Convert::wcharToUtf8(targetAttrName));
+        result.insert(result.end(), v.cbegin(), v.cend());
+    }
+    return result;
+}
+
 std::vector<GumboNode*> HTMLParser::filterNode(const std::wstring& tagType, const std::wstring& attrName, const std::wstring& attrValue)
 {
     std::vector<GumboNode*> nodesBuf;
