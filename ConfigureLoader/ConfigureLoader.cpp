@@ -1,4 +1,5 @@
 #include "ConfigureLoader.hpp"
+#include <algorithm>
 
 using namespace JobCrawler;
 

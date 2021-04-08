@@ -46,6 +46,7 @@ private:
 private:
     void downloadAllJobItemPage(const QStringList urls);
     void saveTagHTML();
+    void saveSetting();
 
 private:
     struct WebData
@@ -89,4 +90,6 @@ private:
     JobCrawler::HTMLTag toolHTML;
     JobCrawler::HTMLTag jobContentHTML;
     JobCrawler::HTMLTag salaryHTML;
+
+    JobCrawler::Setting::DataSetting dataSetting;
 };

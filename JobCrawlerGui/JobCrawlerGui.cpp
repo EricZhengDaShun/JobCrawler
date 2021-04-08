@@ -5,13 +5,18 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <algorithm>
 
 #include <qstring.h>
 #include <qtranslator.h>
 #include <qstringlist.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 
+#include "nlohmann/json.hpp"
+
 #include "HTMLParser.hpp"
+#include "Convert.hpp"
+#include "FileHelper.hpp"
 
 namespace {
     QStringList makeBaseUrlPathToUrlPaths(const QString baseUrl, const int pageNum)
@@ -33,6 +38,15 @@ namespace {
         }
 
         return urls;
+    }
+
+    std::vector<std::string> vectorTransformWstrToStr(const std::vector<std::wstring>& source)
+    {
+        std::vector<std::string> direct;
+        std::transform(source.begin(), source.end(),
+            std::back_inserter(direct),
+            [](const std::wstring& wstr) { return Convert::wcharToUtf8(wstr); });
+        return direct;
     }
 }
 
@@ -161,6 +175,7 @@ void JobCrawlerGui::on_configureReloadPushButton_clicked()
     ui.salaryHTMLAttributeNameLineEdit->setText(QString::fromStdWString(salaryAttributeName));
     ui.salaryHTMLAttributeValueLineEdit->setText(QString::fromStdWString(salaryAttributeValue));
 
+    saveSetting();
     saveTagHTML();
     ui.statusBar->showMessage(tr("Reload configure file done !"));
     return;
@@ -186,14 +201,7 @@ void JobCrawlerGui::on_configureSavePushButton_clicked()
         ui.filterSwitchToolCheckBox->checkState() == Qt::Checked ? true : false;
     configureLoader->setSettingFilterSwitch(filterSwitch);
 
-
-    Setting::DataSetting dataSetting;
-    dataSetting.fileName = ui.dataSettingFileNameLineEdit->text().toStdWString();
-    dataSetting.saveData = 
-        ui.dataSettingSaveFileCheckBox->checkState() == Qt::Checked ? true : false;
-    dataSetting.useFile =
-        ui.dataSettingUseFileCheckBox->checkState() == Qt::Checked ? true : false;
-    configureLoader->setSettingDataSetting(dataSetting);
+    saveSetting();
 
     Setting::Tool tool;
     int toolItemNum = ui.toolFilterIncludeListWidget->count();
@@ -438,6 +446,17 @@ void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
+    if (dataSetting.saveData) {
+        std::vector<std::string> htmls;
+        for (const auto& webData : webDatas) {
+            htmls.push_back(webData.html);
+        }
+        nlohmann::json json;
+        json["HTML"] = htmls;
+        const std::string jsonData = json.dump();
+        FileHelper::overwrite(dataSetting.fileName, jsonData);
+    }
+
     emit downloadPageFinshed();
     return;
 }
@@ -467,4 +486,14 @@ void JobCrawlerGui::saveTagHTML()
     salaryHTML.attributeValue = ui.salaryHTMLAttributeValueLineEdit->text().toStdWString();
 
     return;
+}
+
+void JobCrawlerGui::saveSetting()
+{
+    dataSetting.fileName = ui.dataSettingFileNameLineEdit->text().toStdWString();
+    dataSetting.saveData =
+        ui.dataSettingSaveFileCheckBox->checkState() == Qt::Checked ? true : false;
+    dataSetting.useFile =
+        ui.dataSettingUseFileCheckBox->checkState() == Qt::Checked ? true : false;
+    configureLoader->setSettingDataSetting(dataSetting);
 }
