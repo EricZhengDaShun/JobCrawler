@@ -97,6 +97,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MenuListWidget.cpp" />
     <QtRcc Include="JobCrawlerGui.qrc" />
     <QtUic Include="JobCrawlerGui.ui" />
     <QtMoc Include="JobCrawlerGui.hpp" />
@@ -106,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConfigureLoader.hpp" />
+    <QtMoc Include="MenuListWidget.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

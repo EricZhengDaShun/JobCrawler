@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>948</width>
+    <width>1040</width>
     <height>831</height>
    </rect>
   </property>
@@ -25,8 +25,8 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>601</width>
-      <height>631</height>
+      <width>1001</width>
+      <height>661</height>
      </rect>
     </property>
     <property name="title">
@@ -156,7 +156,7 @@
        <x>20</x>
        <y>320</y>
        <width>201</width>
-       <height>148</height>
+       <height>151</height>
       </rect>
      </property>
      <property name="title">
@@ -186,6 +186,106 @@
       </item>
      </layout>
     </widget>
+    <widget class="QGroupBox" name="dataSettingGroupBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>480</y>
+       <width>421</width>
+       <height>152</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>DataSetting</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="dataSettingUseFileCheckBox">
+        <property name="text">
+         <string>Use Filse</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="dataSettingSaveFileCheckBox">
+        <property name="text">
+         <string>Save File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="dataSettingFileNameLabel">
+          <property name="text">
+           <string>File Name:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="dataSettingFileNameLineEdit"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGroupBox" name="toolFilterGroupBox">
+     <property name="geometry">
+      <rect>
+       <x>580</x>
+       <y>90</y>
+       <width>401</width>
+       <height>311</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>ToolFilter</string>
+     </property>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>40</y>
+        <width>181</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="toolFilterIncludeLabel">
+         <property name="text">
+          <string>Include:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="MenuListWidget" name="toolFilterIncludeListWidget"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>40</y>
+        <width>181</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="toolFilterExcludeLabel">
+         <property name="text">
+          <string>Exclude:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="MenuListWidget" name="toolFilterExcludeListWidget"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -193,7 +293,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>948</width>
+     <width>1040</width>
      <height>32</height>
     </rect>
    </property>
@@ -209,6 +309,13 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MenuListWidget</class>
+   <extends>QListWidget</extends>
+   <header>MenuListWidget.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="JobCrawlerGui.qrc"/>
  </resources>

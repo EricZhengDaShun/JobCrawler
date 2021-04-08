@@ -2,6 +2,7 @@
 
 #include <exception>
 #include <string>
+#include <vector>
 
 #include <qstring.h>
 #include <qtranslator.h>
@@ -40,6 +41,22 @@ void JobCrawlerGui::on_configureReloadPushButton_clicked()
     ui.filterSwitchJobContentCheckBox->setCheckState(jobContentEnable ? Qt::Checked : Qt::Unchecked);
     ui.filterSwitchJobTitleCheckBox->setCheckState(jobTitleEnable ? Qt::Checked : Qt::Unchecked);
     ui.filterSwitchToolEnableCheckBox->setCheckState(toolEnable ? Qt::Checked : Qt::Unchecked);
+
+    const bool useFile = configureLoader->getSettingDataSetting().useFile;
+    const bool saveFile = configureLoader->getSettingDataSetting().saveData;
+    const std::wstring dataFileName = configureLoader->getSettingDataSetting().fileName;
+    ui.dataSettingUseFileCheckBox->setCheckState(useFile ? Qt::Checked : Qt::Unchecked);
+    ui.dataSettingSaveFileCheckBox->setCheckState(saveFile ? Qt::Checked : Qt::Unchecked);
+    ui.dataSettingFileNameLineEdit->setText(QString::fromStdWString(dataFileName));
+
+    const std::vector<std::wstring> toolIncludes = configureLoader->getSettingTool().include;
+    const std::vector<std::wstring> toolExcludes = configureLoader->getSettingTool().exclude;
+    for (const auto& v : toolIncludes) {
+        ui.toolFilterIncludeListWidget->addItem(QString::fromStdWString(v));
+    }
+    for (const auto& v : toolExcludes) {
+        ui.toolFilterExcludeListWidget->addItem(QString::fromStdWString(v));
+    }
 
     ui.statusBar->showMessage(tr("Reload configure file done !"));
     return;
