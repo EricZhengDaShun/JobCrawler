@@ -326,7 +326,10 @@ void JobCrawlerGui::enableWebDownloadTab()
 {
     ui.webDownloadStartPushButton->setEnabled(true);
     timeMeasurer.stop();
-    const QString msg = "Total time: " + QString::number(timeMeasurer.getDurationSec()) + " sec";
+
+    const QString msg = "Total time: " + QString::number(timeMeasurer.getDurationSec()) + " sec"
+        + "  jobItemWebError: " + QString::number(jobItemWebError.size()) 
+        + " , jobDescriptionError: " + QString::number(jobDescriptionError.size());
     ui.statusBar->showMessage(msg);
 }
 
@@ -446,9 +449,23 @@ void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
+    {
+        std::lock_guard<std::mutex> lockGuard(jobDescriptionErrorMutex);
+        jobDescriptionError.clear();
+        jobDescriptionWebs.clear();
+        for (const auto& webData : webDatas) {
+            if (webData.html.empty()) {
+                jobDescriptionError.push_back(webData.url.toString());
+            } else {
+                jobDescriptionWebs.push_back(webData);
+            }
+        }
+    }
+    webDatas.clear();
+
     if (dataSetting.saveData) {
         std::vector<std::string> htmls;
-        for (const auto& webData : webDatas) {
+        for (const auto& webData : jobDescriptionWebs) {
             htmls.push_back(webData.html);
         }
         nlohmann::json json;
