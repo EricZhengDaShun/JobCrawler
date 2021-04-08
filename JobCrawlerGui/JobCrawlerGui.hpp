@@ -18,6 +18,7 @@ public:
 
 protected slots:
     void on_configureReloadPushButton_clicked();
+    void on_configureSavePushButton_clicked();
 
     void on_toolFilterIncludeAddPushButton_clicked();
     void on_toolFilterExcludeAddPushButton_clicked();
