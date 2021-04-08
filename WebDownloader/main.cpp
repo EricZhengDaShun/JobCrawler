@@ -1,4 +1,5 @@
 #include <iostream>
+#include <locale>
 
 #include <QtWidgets/QApplication>
 #include <QObject>
