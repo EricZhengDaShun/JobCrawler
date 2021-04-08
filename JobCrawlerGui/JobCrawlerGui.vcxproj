@@ -61,14 +61,20 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)thirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)thirdParty;$(GUMBO_HOME)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(GUMBO_HOME)lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)thirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)thirdParty;$(GUMBO_HOME)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(GUMBO_HOME)lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -97,7 +103,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HTMLParser.cpp" />
     <ClCompile Include="MenuListWidget.cpp" />
+    <ClCompile Include="TimeMeasurer.cpp" />
+    <ClCompile Include="WebDownloader.cpp" />
     <QtRcc Include="JobCrawlerGui.qrc" />
     <QtUic Include="JobCrawlerGui.ui" />
     <QtMoc Include="JobCrawlerGui.hpp" />
@@ -107,6 +116,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConfigureLoader.hpp" />
+    <ClInclude Include="HTMLParser.hpp" />
+    <ClInclude Include="TimeMeasurer.hpp" />
+    <QtMoc Include="WebDownloader.hpp" />
     <QtMoc Include="MenuListWidget.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

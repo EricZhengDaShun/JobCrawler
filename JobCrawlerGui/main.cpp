@@ -1,8 +1,12 @@
 #include <iostream>
 #include <locale>
+#include <vector>
+#include <memory>
+#include <thread>
 
 #include "JobCrawlerGui.hpp"
 #include <QtWidgets/QApplication>
+#include "WebDownloader.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -10,7 +14,14 @@ int main(int argc, char *argv[])
     std::ios::sync_with_stdio(false);
 
     QApplication a(argc, argv);
-    JobCrawlerGui w;
+
+    static const int htmlCrawlerNum = (std::thread::hardware_concurrency() * (int)2) + 1;
+    std::vector<std::unique_ptr<WebDownloader>> webDownloaders;
+    for (int count = 0; count < htmlCrawlerNum; ++count) {
+        webDownloaders.push_back(std::make_unique<WebDownloader>());
+    }
+
+    JobCrawlerGui w(webDownloaders);
     w.show();
     return a.exec();
 }

@@ -3,19 +3,59 @@
 #include <exception>
 #include <string>
 #include <vector>
+#include <thread>
+#include <chrono>
 
 #include <qstring.h>
 #include <qtranslator.h>
+#include <qstringlist.h>
+#include <QtConcurrent/qtconcurrentrun.h>
 
 #include "ConfigureLoader.hpp"
 
+namespace {
+    QStringList makeBaseUrlPathToUrlPaths(const QString baseUrl, const int pageNum)
+    {
+        QStringList urls;
+
+        const QString headerTail{"&page="};
+        const int headerTailPos = baseUrl.indexOf(headerTail);
+        if (headerTailPos == -1) return urls;
+        const QString header = baseUrl.mid(0, headerTailPos + headerTail.length());
+        
+        const QString tailHeader{ "&mode" };
+        const int tailHeaderPos = baseUrl.indexOf(tailHeader);
+        if (tailHeaderPos == -1) return urls;
+        const QString tail = baseUrl.mid(tailHeaderPos);
+
+        for (int count = 1; count <= pageNum; ++count) {
+            urls.push_back(header + QString::number(count) + tail);
+        }
+
+        return urls;
+    }
+}
+
 using namespace JobCrawler;
 
-JobCrawlerGui::JobCrawlerGui(QWidget *parent)
+JobCrawlerGui::JobCrawlerGui(std::vector<std::unique_ptr<WebDownloader>>& webDownloaders, QWidget *parent)
     : QMainWindow(parent)
     , configureLoader(std::make_shared<ConfigureLoader>())
+    , webDownloaders(webDownloaders)
+    , downloadStep(0)
 {
     ui.setupUi(this);
+    QObject::connect(this, SIGNAL(downloadPageFinshed()),
+        this, SLOT(enableWebDownloadTab()));
+
+    for (auto& webDownloader : webDownloaders) {
+        QObject::connect(webDownloader.get(), SIGNAL(downloadHTMLFinished(WebDownloader&, QUrl, QString)),
+            this, SLOT(downloadHTMLDone(WebDownloader&, QUrl, QString)));
+    }
+
+    QObject::connect(this, SIGNAL(startDownloadPage()),
+        this, SLOT(downloadPage()));
+
 }
 
 void JobCrawlerGui::on_configureReloadPushButton_clicked()
@@ -277,5 +317,95 @@ void JobCrawlerGui::on_jobContentFilterExcludeAddPushButton_clicked()
     ui.jobContentFilterExcludeListWidget->addItem(jobContentItem);
     ui.jobContentFilterExcludeAddLineEdit->clear();
 
+    return;
+}
+
+void JobCrawlerGui::on_webDownloadStartPushButton_clicked()
+{
+    timeMeasurer.start();
+    ui.webDownloadStartPushButton->setEnabled(false);
+
+    ui.webDownloadJobLinkProgressBar->reset();
+    ui.webDownloadJobDescriptionProgressBar->reset();
+
+    const QString jobItemBaseUrl = ui.urlPathPlainTextEdit->toPlainText();
+    const int pageNum = ui.urlPageNumSpinBox->value();
+    const QStringList urls = ::makeBaseUrlPathToUrlPaths(jobItemBaseUrl, pageNum);
+    downloadStep = 1;
+    QtConcurrent::run(this, &JobCrawlerGui::downloadAllJobItemPage, urls);
+}
+
+void JobCrawlerGui::enableWebDownloadTab()
+{
+    ui.webDownloadStartPushButton->setEnabled(true);
+    timeMeasurer.stop();
+    const QString msg = "Total time: " + QString::number(timeMeasurer.getDurationSec()) + " sec";
+    ui.statusBar->showMessage(msg);
+}
+
+void JobCrawlerGui::downloadHTMLDone(WebDownloader& webDownloader, QUrl url, QString html)
+{
+    {
+        std::lock_guard<std::mutex> lockGuard(jobItemUrlsMutex);
+        if (!jobItemUrls.empty()) {
+            webDownloader.load(jobItemUrls.back().toStdWString());
+            jobItemUrls.pop_back();
+        }
+    }
+
+    {
+        std::lock_guard<std::mutex> lockGuard(webDataMutex);
+        webDatas.emplace_back(url, html.toStdString());
+    }
+
+    if (downloadStep == 1) {
+        ui.webDownloadJobLinkProgressBar->setValue(webDatas.size());
+    } else if (downloadStep == 2) {
+        ui.webDownloadJobDescriptionProgressBar->setValue(webDatas.size());
+    }
+    return;
+}
+
+void JobCrawlerGui::downloadPage()
+{
+    if (downloadStep == 1) {
+        ui.webDownloadJobLinkProgressBar->setRange(0, jobItemUrls.size());
+    } else if (downloadStep == 2) {
+        ui.webDownloadJobDescriptionProgressBar->setRange(0, jobItemUrls.size());
+    }
+
+    std::lock_guard<std::mutex> jobItemLockGuard(jobItemUrlsMutex);
+    for (int count = 0; count < webDownloaders.size(); ++count) {
+        if (jobItemUrls.empty()) break;
+        webDownloaders[count]->load(jobItemUrls.back().toStdWString());
+        jobItemUrls.pop_back();
+    }
+
+    return;
+}
+
+void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
+{
+    {
+        std::lock_guard<std::mutex> jobItemLockGuard(jobItemUrlsMutex);
+        jobItemUrls.clear();
+        for (const auto& url : urls) {
+            jobItemUrls.push_back(url);
+        }
+
+        std::lock_guard<std::mutex> webDataLockGuard(webDataMutex);
+        webDatas.clear();
+    }
+    emit startDownloadPage();
+
+    while (true) {
+        {
+            std::lock_guard<std::mutex> lockGuard(webDataMutex);
+            if (webDatas.size() == urls.size()) break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
+    emit downloadPageFinshed();
     return;
 }
