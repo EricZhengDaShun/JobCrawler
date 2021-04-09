@@ -439,7 +439,7 @@ void JobCrawlerGui::downloadPage()
         }
 
     } else if (downloadStep == 2) {
-        ui.webDownloadJobDescriptionProgressBar->setRange(0, jobDescriptionUrls.size());
+        
         std::lock_guard<std::mutex> jobbDescriptionLockGuard(jobDescriptionUrlsMutex);
         for (int count = 0; count < webDownloaders.size(); ++count) {
             if (jobDescriptionUrls.empty()) break;
@@ -507,10 +507,8 @@ void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
     webDatas.clear();
     
     downloadStep = 2;
+    std::vector<QString> jdUrlsBuf;
     {
-        std::lock_guard<std::mutex> lockGuard(jobDescriptionUrlsMutex);
-        jobDescriptionUrls.clear();
-
         HTMLParser htmlParser;
         for (const auto& jobItemWeb : jobItemWebs) {
             htmlParser.setHTML(jobItemWeb.html);
@@ -518,13 +516,50 @@ void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
                 , jobLinkHTML.attributeName
                 , jobLinkHTML.attributeValue
                 , jobLinkHTML.contentAttribute);
-            for(const auto& url : urls) {
-                jobDescriptionUrls.push_back(QString::fromStdString("https:" + url));
+            for (const auto& url : urls) {
+                jdUrlsBuf.push_back(QString::fromStdString("https:" + url));
             }
         }
     }
-    const size_t jobbDescriptionUrlsNum = jobDescriptionUrls.size();
-    emit startDownloadPage();
+    const size_t jobbDescriptionUrlsNum = jdUrlsBuf.size();
+
+    {
+        std::lock_guard<std::mutex> lockGuard(jobDescriptionUrlsMutex);
+        jobDescriptionUrls.clear();
+    }
+
+    static const size_t sleepInterval = 250;
+    ui.webDownloadJobDescriptionProgressBar->setRange(0, jobbDescriptionUrlsNum);
+    while (!jdUrlsBuf.empty()) {
+        for (size_t count = 0; count < sleepInterval; ++count) {
+            if (jdUrlsBuf.empty()) break;
+            {
+                std::lock_guard<std::mutex> lockGuard(jobDescriptionUrlsMutex);
+                jobDescriptionUrls.push_back(jdUrlsBuf.back());
+            }
+            jdUrlsBuf.pop_back();
+        }
+        if (jobDescriptionUrls.size() < sleepInterval) {
+            emit startDownloadPage();
+            break;
+        } else {
+            emit startDownloadPage();
+            while (true) {
+                bool downloadAllDone = true;
+                {
+                    std::lock_guard<std::mutex> lockGuard(jobDescriptionUrlsMutex);
+                    downloadAllDone = jobDescriptionUrls.empty();
+                }
+                if (!downloadAllDone) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                } else {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+                    break;
+                }
+            }
+        }
+    }
+
     while (true) {
         {
             std::lock_guard<std::mutex> lockGuard(webDataMutex);
@@ -667,15 +702,25 @@ void JobCrawlerGui::filterJob()
                 , jobTitleHTML.contentAttribute)
             .front();
 
-        jobData.jobContent =
-            htmlParser.getInnerHTML(jobContentHTML.tagType
+        const std::vector<std::string> jobContent 
+            = htmlParser.getInnerHTML(jobContentHTML.tagType
                 , jobContentHTML.attributeName
-                , jobContentHTML.attributeValue).front();
+                , jobContentHTML.attributeValue);
+        if (jobContent.empty()) {
+            jobData.jobContent = "";
+        } else {
+            jobData.jobContent = jobContent.front();
+        }
 
-        jobData.salary =
-            htmlParser.getInnerHTML(salaryHTML.tagType
+        const std::vector<std::string> salary
+            = htmlParser.getInnerHTML(salaryHTML.tagType
                 , salaryHTML.attributeName
-                , salaryHTML.attributeValue).front();
+                , salaryHTML.attributeValue);
+        if (salary.empty()) {
+            jobData.salary = "";
+        } else {
+            jobData.salary = salary.front();
+        }
 
         jobData.url = jd.url.toString().toStdString();
 

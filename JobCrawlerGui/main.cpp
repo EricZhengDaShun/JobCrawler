@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    static const int htmlCrawlerNum = std::thread::hardware_concurrency();
+    const int htmlCrawlerNum = std::thread::hardware_concurrency();
     std::vector<std::unique_ptr<WebDownloader>> webDownloaders;
     for (int count = 0; count < htmlCrawlerNum; ++count) {
         webDownloaders.push_back(std::make_unique<WebDownloader>());
