@@ -78,16 +78,20 @@ namespace {
 
     bool filterData(const std::vector<std::wstring>& includes
         , const std::vector<std::wstring>& excludes
-        , const std::string& data)
+        , const std::string& rawData)
     {
-        const std::wstring key = Convert::utf8ToWchar(data);
-        auto includePos = std::find(includes.cbegin(), includes.cend(), key);
-        if (includePos == includes.cend()) return false;
+        const std::wstring data = Convert::utf8ToWchar(rawData);
+        for (const auto& item : includes) {
+            const std::wstring::size_type pos = data.find(item);
+            if (pos == std::wstring::npos) return true;
+        }
 
-        auto excludePos = std::find(excludes.cbegin(), excludes.cend(), key);
-        if (excludePos != includes.cend()) return false;
+        for (const auto& item : excludes) {
+            const std::wstring::size_type pos = data.find(item);
+            if (pos != std::wstring::npos) return true;
+        }
 
-        return true;
+        return false;
     }
 }
 
