@@ -48,6 +48,47 @@ namespace {
             [](const std::wstring& wstr) { return Convert::wcharToUtf8(wstr); });
         return direct;
     }
+
+    bool isFound(const std::vector<std::string>& datas, const std::wstring& key)
+    {
+        std::vector<std::wstring> direct;
+        std::transform(datas.begin(), datas.end(),
+            std::back_inserter(direct),
+            [](const std::string& str) { return Convert::utf8ToWchar(str); });
+
+        auto pos = std::find(direct.cbegin(), direct.cend(), key);
+        if (pos == direct.cend()) return false;
+        return true;
+    }
+
+    bool filterData(const std::vector<std::wstring>& includes
+        , const std::vector<std::wstring>& excludes
+        , const std::vector<std::string>& data)
+    {
+        for (const auto& item : includes) {
+            if (!isFound(data, item)) return true;
+        }
+
+        for (const auto& item : excludes) {
+            if (isFound(data, item)) return true;
+        }
+
+        return false;
+    }
+
+    bool filterData(const std::vector<std::wstring>& includes
+        , const std::vector<std::wstring>& excludes
+        , const std::string& data)
+    {
+        const std::wstring key = Convert::utf8ToWchar(data);
+        auto includePos = std::find(includes.cbegin(), includes.cend(), key);
+        if (includePos == includes.cend()) return false;
+
+        auto excludePos = std::find(excludes.cbegin(), excludes.cend(), key);
+        if (excludePos != includes.cend()) return false;
+
+        return true;
+    }
 }
 
 using namespace JobCrawler;
@@ -57,6 +98,7 @@ JobCrawlerGui::JobCrawlerGui(std::vector<std::unique_ptr<WebDownloader>>& webDow
     , configureLoader(std::make_shared<ConfigureLoader>())
     , webDownloaders(webDownloaders)
     , downloadStep(0)
+    , isWebDownloadDone(false)
 {
     ui.setupUi(this);
     QObject::connect(this, SIGNAL(downloadPageFinshed()),
@@ -68,8 +110,13 @@ JobCrawlerGui::JobCrawlerGui(std::vector<std::unique_ptr<WebDownloader>>& webDow
     }
 
     QObject::connect(this, SIGNAL(startDownloadPage()),
-        this, SLOT(downloadPage()));
+         this, SLOT(downloadPage()));
 
+    QObject::connect(this, SIGNAL(clickWebDownloadStartPushButton()),
+        this, SLOT(on_webDownloadStartPushButton_clicked()));
+    
+    QObject::connect(this, SIGNAL(filterDone()),
+        this, SLOT(showJobResult()));
 }
 
 void JobCrawlerGui::on_configureReloadPushButton_clicked()
@@ -105,12 +152,12 @@ void JobCrawlerGui::on_configureReloadPushButton_clicked()
 
     ui.toolFilterIncludeListWidget->clear();
     ui.toolFilterExcludeListWidget->clear();
-    const std::vector<std::wstring> toolIncludes = configureLoader->getSettingTool().include;
-    const std::vector<std::wstring> toolExcludes = configureLoader->getSettingTool().exclude;
-    for (const auto& v : toolIncludes) {
+    toolSetting.include = configureLoader->getSettingTool().include;
+    toolSetting.exclude = configureLoader->getSettingTool().exclude;
+    for (const auto& v : toolSetting.include) {
         ui.toolFilterIncludeListWidget->addItem(QString::fromStdWString(v));
     }
-    for (const auto& v : toolExcludes) {
+    for (const auto& v : toolSetting.exclude) {
         ui.toolFilterExcludeListWidget->addItem(QString::fromStdWString(v));
     }
 
@@ -191,49 +238,11 @@ void JobCrawlerGui::on_configureSavePushButton_clicked()
     url.pageNum = static_cast<size_t>(ui.urlPageNumSpinBox->value());
     configureLoader->setSettingUrl(url);
 
-
-    Setting::FilterSwitch filterSwitch;
-    filterSwitch.jobContentEnable = 
-        ui.filterSwitchJobContentCheckBox->checkState() == Qt::Checked ? true : false;
-    filterSwitch.jobTitleEnable =
-        ui.filterSwitchJobTitleCheckBox->checkState() == Qt::Checked ? true : false;
-    filterSwitch.toolEnable =
-        ui.filterSwitchToolCheckBox->checkState() == Qt::Checked ? true : false;
-    configureLoader->setSettingFilterSwitch(filterSwitch);
-
     saveSetting();
-
-    Setting::Tool tool;
-    int toolItemNum = ui.toolFilterIncludeListWidget->count();
-    for (int count = 0; count < toolItemNum; ++count) {
-        tool.include.push_back(ui.toolFilterIncludeListWidget->item(count)->text().toStdWString());
-    }
-    toolItemNum = ui.toolFilterExcludeListWidget->count();
-    for (int count = 0; count < toolItemNum; ++count) {
-        tool.exclude.push_back(ui.toolFilterExcludeListWidget->item(count)->text().toStdWString());
-    }
-    Setting::JobContent jobContent;
-    int jobContentItemNum = ui.jobContentFilterIncludeListWidget->count();
-    for (int count = 0; count < jobContentItemNum; ++count) {
-        jobContent.include.push_back(ui.jobContentFilterIncludeListWidget->item(count)->text().toStdWString());
-    }
-    jobContentItemNum = ui.jobContentFilterExcludeListWidget->count();
-    for (int count = 0; count < jobContentItemNum; ++count) {
-        jobContent.exclude.push_back(ui.jobContentFilterExcludeListWidget->item(count)->text().toStdWString());
-    }
-    Setting::JobTitle jobTitle;
-    int jobTitleItemNum = ui.jobTitleFilterIncludeListWidget->count();
-    for (int count = 0; count < jobTitleItemNum; ++count) {
-        jobTitle.include.push_back(ui.jobTitleFilterIncludeListWidget->item(count)->text().toStdWString());
-    }
-    jobTitleItemNum = ui.jobTitleFilterExcludeListWidget->count();
-    for (int count = 0; count < jobTitleItemNum; ++count) {
-        jobTitle.exclude.push_back(ui.jobTitleFilterExcludeListWidget->item(count)->text().toStdWString());
-    }
-    configureLoader->setSettingTool(tool);
-    configureLoader->setSettingJobContent(jobContent);
-    configureLoader->setSettingJobTitle(jobTitle);
-
+    configureLoader->setSettingFilterSwitch(filterSwitchSetting);
+    configureLoader->setSettingTool(toolSetting);
+    configureLoader->setSettingJobContent(jobContentSetting);
+    configureLoader->setSettingJobTitle(jobTitleSetting);
 
     saveTagHTML();
     configureLoader->setJobLinkHTML(jobLinkHTML);
@@ -310,6 +319,7 @@ void JobCrawlerGui::on_jobContentFilterExcludeAddPushButton_clicked()
 void JobCrawlerGui::on_webDownloadStartPushButton_clicked()
 {
     timeMeasurer.start();
+    isWebDownloadDone.store(false);
     ui.webDownloadStartPushButton->setEnabled(false);
 
     ui.webDownloadJobLinkProgressBar->reset();
@@ -320,6 +330,61 @@ void JobCrawlerGui::on_webDownloadStartPushButton_clicked()
     const QStringList urls = ::makeBaseUrlPathToUrlPaths(jobItemBaseUrl, pageNum);
     downloadStep = 1;
     QtConcurrent::run(this, &JobCrawlerGui::downloadAllJobItemPage, urls);
+}
+
+void JobCrawlerGui::on_filterPushButton_clicked()
+{
+    ui.filterPushButton->setEnabled(false);
+    ui.filterResultPlainTextEdit->clear();
+    ui.filterResultPlainTextEdit->setEnabled(false);
+
+    saveSetting();
+    isWebDownloadDone.store(false);
+
+    std::string jsonData;
+    if (dataSetting.useFile) {
+        jobDescriptionWebs.clear();
+
+        try {
+            jsonData = FileHelper::readAll(dataSetting.fileName);
+            nlohmann::json json = nlohmann::json::parse(jsonData);
+            if (json.find("data") == json.end()) {
+                std::string msg = "HTML json file pase fail !";
+                throw msg;
+                return;
+            }
+
+            nlohmann::json data = json["data"];
+            for (auto it = data.cbegin(); it != data.cend(); ++it) {
+                nlohmann::json item = *it;
+                if (item.find("url") == item.end() ||
+                    item.find("html") == item.end()) {
+                    std::string msg = "HTML json file pase fail !";
+                    throw msg;
+                    return;
+                }
+
+                WebData webdata(QUrl(QString::fromStdString(item["url"])), item["html"]);
+                jobDescriptionWebs.push_back(webdata);
+            }
+
+            isWebDownloadDone.store(true);
+
+        } catch (std::exception& e) {
+            ui.statusBar->showMessage(tr(e.what()));
+            return;
+        
+        } catch (std::string& str) {
+            ui.statusBar->showMessage(tr(str.c_str()));
+            return;
+        }
+
+
+    } else {
+        ui.webDownloadStartPushButton->click();
+    }
+
+    QtConcurrent::run(this, &JobCrawlerGui::filterJob);
 }
 
 void JobCrawlerGui::enableWebDownloadTab()
@@ -381,9 +446,28 @@ void JobCrawlerGui::downloadPage()
             webDownloaders[count]->load(jobDescriptionUrls.back().toStdWString());
             jobDescriptionUrls.pop_back();
         }
+
     }
 
     return;
+}
+
+void JobCrawlerGui::showJobResult()
+{
+    for (const auto& jobData : jobDatas) {
+        ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(jobData.jobTitle));
+        
+        for (const auto& tool : jobData.tools) {
+            ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(tool));
+        }
+        
+        ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(jobData.salary));
+        ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(jobData.url));
+        ui.filterResultPlainTextEdit->appendPlainText("\n");
+    }
+
+    ui.filterPushButton->setEnabled(true);
+    ui.filterResultPlainTextEdit->setEnabled(true);
 }
 
 void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
@@ -435,7 +519,7 @@ void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
                 , jobLinkHTML.attributeValue
                 , jobLinkHTML.contentAttribute);
             for(const auto& url : urls) {
-                jobDescriptionUrls.push_back(QString::fromStdString("https:" + urls.front()));
+                jobDescriptionUrls.push_back(QString::fromStdString("https:" + url));
             }
         }
     }
@@ -464,16 +548,20 @@ void JobCrawlerGui::downloadAllJobItemPage(const QStringList urls)
     webDatas.clear();
 
     if (dataSetting.saveData) {
-        std::vector<std::string> htmls;
+        nlohmann::json dataArray;
         for (const auto& webData : jobDescriptionWebs) {
-            htmls.push_back(webData.html);
+            nlohmann::json item;
+            item["url"] = webData.url.toString().toStdString();
+            item["html"] = webData.html;
+            dataArray.push_back(item);
         }
         nlohmann::json json;
-        json["HTML"] = htmls;
+        json["data"] = dataArray;
         const std::string jsonData = json.dump();
         FileHelper::overwrite(dataSetting.fileName, jsonData);
     }
 
+    isWebDownloadDone.store(true);
     emit downloadPageFinshed();
     return;
 }
@@ -507,10 +595,121 @@ void JobCrawlerGui::saveTagHTML()
 
 void JobCrawlerGui::saveSetting()
 {
+    filterSwitchSetting.jobContentEnable =
+        ui.filterSwitchJobContentCheckBox->checkState() == Qt::Checked ? true : false;
+    filterSwitchSetting.jobTitleEnable =
+        ui.filterSwitchJobTitleCheckBox->checkState() == Qt::Checked ? true : false;
+    filterSwitchSetting.toolEnable =
+        ui.filterSwitchToolCheckBox->checkState() == Qt::Checked ? true : false;
+
     dataSetting.fileName = ui.dataSettingFileNameLineEdit->text().toStdWString();
     dataSetting.saveData =
         ui.dataSettingSaveFileCheckBox->checkState() == Qt::Checked ? true : false;
     dataSetting.useFile =
         ui.dataSettingUseFileCheckBox->checkState() == Qt::Checked ? true : false;
     configureLoader->setSettingDataSetting(dataSetting);
+
+    toolSetting.include.clear();
+    int toolItemNum = ui.toolFilterIncludeListWidget->count();
+    for (int count = 0; count < toolItemNum; ++count) {
+        toolSetting.include.push_back(ui.toolFilterIncludeListWidget->item(count)->text().toStdWString());
+    }
+    toolSetting.exclude.clear();
+    toolItemNum = ui.toolFilterExcludeListWidget->count();
+    for (int count = 0; count < toolItemNum; ++count) {
+        toolSetting.exclude.push_back(ui.toolFilterExcludeListWidget->item(count)->text().toStdWString());
+    }
+
+    jobTitleSetting.include.clear();
+    int jobTitleItemNum = ui.jobTitleFilterIncludeListWidget->count();
+    for (int count = 0; count < jobTitleItemNum; ++count) {
+        jobTitleSetting.include.push_back(ui.jobTitleFilterIncludeListWidget->item(count)->text().toStdWString());
+    }
+    jobTitleSetting.exclude.clear();
+    jobTitleItemNum = ui.jobTitleFilterExcludeListWidget->count();
+    for (int count = 0; count < jobTitleItemNum; ++count) {
+        jobTitleSetting.exclude.push_back(ui.jobTitleFilterExcludeListWidget->item(count)->text().toStdWString());
+    }
+
+    jobContentSetting.include.clear();
+    int jobContentItemNum = ui.jobContentFilterIncludeListWidget->count();
+    for (int count = 0; count < jobContentItemNum; ++count) {
+        jobContentSetting.include.push_back(ui.jobContentFilterIncludeListWidget->item(count)->text().toStdWString());
+    }
+    jobContentSetting.exclude.clear();
+    jobContentItemNum = ui.jobContentFilterExcludeListWidget->count();
+    for (int count = 0; count < jobContentItemNum; ++count) {
+        jobContentSetting.exclude.push_back(ui.jobContentFilterExcludeListWidget->item(count)->text().toStdWString());
+    }
+}
+
+void JobCrawlerGui::filterJob()
+{
+    while (!isWebDownloadDone.load()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
+    jobDatas.clear();
+
+    HTMLParser htmlParser;
+    for (const auto& jd : jobDescriptionWebs) {
+        htmlParser.setHTML(jd.html);
+        JobData jobData;
+        jobData.tools =
+            htmlParser.getInnerHTML(toolHTML.tagType
+                , toolHTML.attributeName
+                , toolHTML.attributeValue);
+        
+        jobData.jobTitle =
+            htmlParser.getAttrValue(jobTitleHTML.tagType
+                , jobTitleHTML.attributeName
+                , jobTitleHTML.attributeValue
+                , jobTitleHTML.contentAttribute)
+            .front();
+
+        jobData.jobContent =
+            htmlParser.getInnerHTML(jobContentHTML.tagType
+                , jobContentHTML.attributeName
+                , jobContentHTML.attributeValue).front();
+
+        jobData.salary =
+            htmlParser.getInnerHTML(salaryHTML.tagType
+                , salaryHTML.attributeName
+                , salaryHTML.attributeValue).front();
+
+        jobData.url = jd.url.toString().toStdString();
+
+        jobDatas.push_back(jobData);
+    }
+
+    for (auto it = jobDatas.begin(); it != jobDatas.end();) {
+        auto jobData = *it;
+        if (filterSwitchSetting.toolEnable) {
+            if (::filterData(toolSetting.include, toolSetting.exclude,
+                jobData.tools)) {
+                it = jobDatas.erase(it);
+                continue;
+            }
+        }
+
+        if (filterSwitchSetting.jobTitleEnable) {
+            if (::filterData(jobTitleSetting.include, jobTitleSetting.exclude,
+                jobData.jobTitle)) {
+                it = jobDatas.erase(it);
+                continue;
+            }
+        }
+
+        if (filterSwitchSetting.jobContentEnable) {
+            if (::filterData(jobContentSetting.include, jobContentSetting.exclude,
+                jobData.jobContent)) {
+                it = jobDatas.erase(it);
+                continue;
+            }
+        }
+
+        ++it;
+    }
+
+    emit filterDone();
 }

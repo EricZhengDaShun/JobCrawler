@@ -787,7 +787,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -812,6 +812,34 @@
         </widget>
        </item>
       </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="FilterTab">
+     <attribute name="title">
+      <string>Filter</string>
+     </attribute>
+     <widget class="QPushButton" name="filterPushButton">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>40</y>
+        <width>151</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Filter</string>
+      </property>
+     </widget>
+     <widget class="QPlainTextEdit" name="filterResultPlainTextEdit">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>130</y>
+        <width>981</width>
+        <height>581</height>
+       </rect>
+      </property>
      </widget>
     </widget>
    </widget>

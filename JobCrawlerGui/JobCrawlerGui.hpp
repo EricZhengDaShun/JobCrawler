@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <mutex>
+#include <atomic>
 
 #include <QtWidgets/QMainWindow>
 #include "ui_JobCrawlerGui.h"
@@ -20,6 +21,7 @@ public:
 signals:
     void downloadPageFinshed();
     void startDownloadPage();
+    void filterDone();
 
 protected slots:
     void on_configureReloadPushButton_clicked();
@@ -36,9 +38,12 @@ protected slots:
 
     void on_webDownloadStartPushButton_clicked();
 
+    void on_filterPushButton_clicked();
+
     void enableWebDownloadTab();
     void downloadHTMLDone(WebDownloader& webDownloader, QUrl url, QString html);
     void downloadPage();
+    void showJobResult();
 
 private:
     Ui::JobCrawlerGuiClass ui;
@@ -47,6 +52,7 @@ private:
     void downloadAllJobItemPage(const QStringList urls);
     void saveTagHTML();
     void saveSetting();
+    void filterJob();
 
 private:
     struct WebData
@@ -61,6 +67,16 @@ private:
 
         }
     };
+
+    struct JobData
+    {
+        std::vector<std::string> tools;
+        std::string jobTitle;
+        std::string jobContent;
+        std::string salary;
+        std::string url;
+    };
+
 
 private:
     std::shared_ptr<JobCrawler::ConfigureLoader> configureLoader;
@@ -85,6 +101,8 @@ private:
     std::mutex jobDescriptionErrorMutex;
     std::vector<WebData> jobDescriptionWebs;
 
+    std::atomic<bool> isWebDownloadDone;
+
     JobCrawler::HTMLTagContent jobLinkHTML;
     JobCrawler::HTMLTagContent jobTitleHTML;
     JobCrawler::HTMLTag toolHTML;
@@ -92,4 +110,10 @@ private:
     JobCrawler::HTMLTag salaryHTML;
 
     JobCrawler::Setting::DataSetting dataSetting;
+    JobCrawler::Setting::Tool toolSetting;
+    JobCrawler::Setting::JobTitle jobTitleSetting;
+    JobCrawler::Setting::JobContent jobContentSetting;
+    JobCrawler::Setting::FilterSwitch filterSwitchSetting;
+
+    std::vector<JobData> jobDatas;
 };
