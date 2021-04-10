@@ -6,6 +6,8 @@
 #include <thread>
 #include <chrono>
 #include <algorithm>
+#include <cwctype>
+#include <sstream> 
 
 #include <qstring.h>
 #include <qtranslator.h>
@@ -49,14 +51,24 @@ namespace {
         return direct;
     }
 
+    std::wstring WstrToUpper(const std::wstring& wstr)
+    {
+        std::wstringstream wss;
+        for (const auto& wchar : wstr) {
+            wss << std::towupper(wchar);
+        }
+        return wss.str();
+    }
+
     bool isFound(const std::vector<std::string>& datas, const std::wstring& key)
     {
         std::vector<std::wstring> direct;
         std::transform(datas.begin(), datas.end(),
             std::back_inserter(direct),
-            [](const std::string& str) { return Convert::utf8ToWchar(str); });
+            [](const std::string& str) { return ::WstrToUpper(Convert::utf8ToWchar(str)); });
 
-        auto pos = std::find(direct.cbegin(), direct.cend(), key);
+        const std::wstring upperKey = ::WstrToUpper(key);
+        auto pos = std::find(direct.cbegin(), direct.cend(), upperKey);
         if (pos == direct.cend()) return false;
         return true;
     }
@@ -80,9 +92,9 @@ namespace {
         , const std::vector<std::wstring>& excludes
         , const std::string& rawData)
     {
-        const std::wstring data = Convert::utf8ToWchar(rawData);
+        const std::wstring data = ::WstrToUpper(Convert::utf8ToWchar(rawData));
         for (const auto& item : includes) {
-            const std::wstring::size_type pos = data.find(item);
+            const std::wstring::size_type pos = data.find(::WstrToUpper(item));
             if (pos == std::wstring::npos) return true;
         }
 
