@@ -831,7 +831,7 @@
        <string>Filter</string>
       </property>
      </widget>
-     <widget class="QPlainTextEdit" name="filterResultPlainTextEdit">
+     <widget class="HyperlinkPlainTextEdit" name="filterResultPlainTextEdit">
       <property name="geometry">
        <rect>
         <x>40</x>
@@ -870,6 +870,11 @@
    <class>MenuListWidget</class>
    <extends>QListWidget</extends>
    <header>MenuListWidget.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>HyperlinkPlainTextEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header>HyperlinkPlainTextEdit.hpp</header>
   </customwidget>
  </customwidgets>
  <resources>

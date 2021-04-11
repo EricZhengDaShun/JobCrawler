@@ -478,7 +478,8 @@ void JobCrawlerGui::showJobResult()
         }
         
         ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(jobData.salary));
-        ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(jobData.url));
+        const QString jobUrlLink = QString::fromStdString(jobData.url);
+        ui.filterResultPlainTextEdit->appendHtml("<a href='" + jobUrlLink + "'>" + jobUrlLink + "</a>");
         ui.filterResultPlainTextEdit->appendPlainText("\n");
     }
 

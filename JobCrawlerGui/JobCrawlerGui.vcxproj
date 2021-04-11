@@ -104,6 +104,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HTMLParser.cpp" />
+    <ClCompile Include="HyperlinkPlainTextEdit.cpp" />
     <ClCompile Include="MenuListWidget.cpp" />
     <ClCompile Include="TimeMeasurer.cpp" />
     <ClCompile Include="WebDownloader.cpp" />
@@ -117,6 +118,7 @@
   <ItemGroup>
     <ClInclude Include="ConfigureLoader.hpp" />
     <ClInclude Include="HTMLParser.hpp" />
+    <QtMoc Include="HyperlinkPlainTextEdit.hpp" />
     <ClInclude Include="TimeMeasurer.hpp" />
     <QtMoc Include="WebDownloader.hpp" />
     <QtMoc Include="MenuListWidget.hpp" />

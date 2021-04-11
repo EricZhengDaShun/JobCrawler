@@ -55,6 +55,9 @@
     <ClCompile Include="TimeMeasurer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HyperlinkPlainTextEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConfigureLoader.hpp">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="WebDownloader.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="HyperlinkPlainTextEdit.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
