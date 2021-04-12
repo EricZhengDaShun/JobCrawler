@@ -1,1 +1,74 @@
-{"dataSetting":{"fileName":"jobInfoRawData.json","saveData":true,"useFile":true},"filterSwitch":{"jobContentEnable":false,"jobTitleEnable":true,"toolEnable":true},"htmlTag":{"jobContent":{"attributeName":"class","attributeValue":"mb-5 r3 job-description__content text-break","tagType":"p"},"jobLink":{"attributeName":"class","attributeValue":"js-job-link ","contentAttribute":"href","tagType":"a"},"jobTitle":{"attributeName":"class","attributeValue":"pr-6 text-break","contentAttribute":"title","tagType":"h1"},"salary":{"attributeName":"class","attributeValue":"t3 mb-0 mr-2 monthly-salary text-primary font-weight-bold float-left","tagType":"p"},"tool":{"attributeName":"data-v-726fdbe7","attributeValue":"","tagType":"u"}},"jobContent":{"exclude":[],"include":[]},"jobTitle":{"exclude":["JAVA"],"include":[]},"tool":{"exclude":["Java","Assembly","PHP","MFC","JSP","Go","Objective-C"],"include":["C++"]},"url":{"pageNum":1,"path":"https://www.104.com.tw/jobs/search/?ro=0&jobcat=2007001000&keyword=c%2B%2B&expansionType=area%2Cspec%2Ccom%2Cjob%2Cwf%2Cwktm&area=6001001000%2C6001002000&edu=4&order=1&asc=0&page=1&mode=s&jobsource=2018indexpoc"}}
+{
+  "dataSetting": {
+    "fileName": "jobInfoRawData.json",
+    "saveData": true,
+    "useFile": true
+  },
+  "filterSwitch": {
+    "jobContentEnable": false,
+    "jobTitleEnable": true,
+    "toolEnable": true
+  },
+  "htmlTag": {
+    "jobContent": {
+      "attributeName": "class",
+      "attributeValue": "mb-5 r3 job-description__content text-break",
+      "tagType": "p"
+    },
+    "jobLink": {
+      "attributeName": "class",
+      "attributeValue": "js-job-link ",
+      "contentAttribute": "href",
+      "tagType": "a"
+    },
+    "jobTitle": {
+      "attributeName": "class",
+      "attributeValue": "pr-6 text-break",
+      "contentAttribute": "title",
+      "tagType": "h1"
+    },
+    "salary": {
+      "attributeName": "class",
+      "attributeValue": "t3 mb-0 mr-2 monthly-salary text-primary font-weight-bold float-left",
+      "tagType": "p"
+    },
+    "tool": {
+      "attributeName": "data-v-726fdbe7",
+      "attributeValue": "",
+      "tagType": "u"
+    },
+    "companyName": {
+      "attributeName": "class",
+      "attributeValue": "btn-link t3 mr-6",
+      "tagType": "a"
+    }
+  },
+  "jobContent": {
+    "exclude": [],
+    "include": []
+  },
+  "jobTitle": {
+    "exclude": [
+      "JAVA"
+    ],
+    "include": []
+  },
+  "tool": {
+    "exclude": [
+      "Java",
+      "Assembly",
+      "PHP",
+      "MFC",
+      "JSP",
+      "Go",
+      "Objective-C"
+    ],
+    "include": [
+      "C++"
+    ]
+  },
+  "url": {
+    "pageNum": 1,
+    "path": "https://www.104.com.tw/jobs/search/?ro=0&jobcat=2007001000&keyword=c%2B%2B&expansionType=area%2Cspec%2Ccom%2Cjob%2Cwf%2Cwktm&area=6001001000%2C6001002000&edu=4&order=1&asc=0&page=1&mode=s&jobsource=2018indexpoc"
+  }
+}

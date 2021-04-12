@@ -75,6 +75,7 @@ private:
         std::string jobContent;
         std::string salary;
         std::string url;
+        std::string companyName;
     };
 
 
@@ -108,6 +109,7 @@ private:
     JobCrawler::HTMLTag toolHTML;
     JobCrawler::HTMLTag jobContentHTML;
     JobCrawler::HTMLTag salaryHTML;
+    JobCrawler::HTMLTag companyNameHTML;
 
     JobCrawler::Setting::DataSetting dataSetting;
     JobCrawler::Setting::Tool toolSetting;

@@ -128,6 +128,8 @@ namespace JobCrawler {
         void setSalaryHTML(const HTMLTag& salaryHTML);
         HTMLTag getJobContentHTML() const;
         void setJobContentHTML(const HTMLTag& jobContentHTML);
+        HTMLTag getCompanyNameHTML() const;
+        void setCompanyNameHTML(const HTMLTag& companyNameHTML);
 
     private:
         std::wstring configureFileName;
@@ -144,6 +146,7 @@ namespace JobCrawler {
         HTMLTagContent jobTitleHTML;
         HTMLTag salaryHTML;
         HTMLTag jobContentHTML;
+        HTMLTag companyNameHTML;
     };
 
 }

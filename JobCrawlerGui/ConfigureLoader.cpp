@@ -204,6 +204,17 @@ namespace {
         return;
     }
 
+    void paseCompanyName(const json& rootJson, HTMLTag& companyNameHTML)
+    {
+        json htmlTagNode = ::findNode(rootJson, "htmlTag");
+        json companyNameNode = ::findNode(htmlTagNode, "companyName");
+        companyNameHTML.tagType = ::getString(companyNameNode, "htmlTag.companyName", "tagType");
+        companyNameHTML.attributeName = ::getString(companyNameNode, "htmlTag.companyName", "attributeName");
+        companyNameHTML.attributeValue = ::getString(companyNameNode, "htmlTag.companyName", "attributeValue");
+
+        return;
+    }
+
     std::vector<std::string> vectorTransformWstrToStr(const std::vector<std::wstring>& source)
     {
         std::vector<std::string> direct;
@@ -246,6 +257,7 @@ void ConfigureLoader::parse()
     ::parseJobTitleHTML(rootJson, jobTitleHTML);
     ::parseSalaryHTML(rootJson, salaryHTML);
     ::parseJobContentHTML(rootJson, jobContentHTML);
+    ::paseCompanyName(rootJson, companyNameHTML);
     return;
 }
 
@@ -293,6 +305,11 @@ void ConfigureLoader::save()
     rootJson["htmlTag"]["jobContent"]["tagType"] = Convert::wcharToUtf8(jobContentHTML.tagType);
     rootJson["htmlTag"]["jobContent"]["attributeName"] = Convert::wcharToUtf8(jobContentHTML.attributeName);
     rootJson["htmlTag"]["jobContent"]["attributeValue"] = Convert::wcharToUtf8(jobContentHTML.attributeValue);
+
+    rootJson["htmlTag"]["companyName"]["tagType"] = Convert::wcharToUtf8(companyNameHTML.tagType);
+    rootJson["htmlTag"]["companyName"]["attributeName"] = Convert::wcharToUtf8(companyNameHTML.attributeName);
+    rootJson["htmlTag"]["companyName"]["attributeValue"] = Convert::wcharToUtf8(companyNameHTML.attributeValue);
+
 
     const std::string jsonData = rootJson.dump();
     FileHelper::overwrite(configureFileName, jsonData);
@@ -421,3 +438,13 @@ void ConfigureLoader::setJobContentHTML(const HTMLTag& jobContentHTML)
     return;
 }
 
+HTMLTag ConfigureLoader::getCompanyNameHTML() const
+{
+    return companyNameHTML;
+}
+
+void ConfigureLoader::setCompanyNameHTML(const HTMLTag& companyNameHTML)
+{
+    this->companyNameHTML = companyNameHTML;
+    return;
+}

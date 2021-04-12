@@ -238,6 +238,14 @@ void JobCrawlerGui::on_configureReloadPushButton_clicked()
     ui.salaryHTMLAttributeNameLineEdit->setText(QString::fromStdWString(salaryAttributeName));
     ui.salaryHTMLAttributeValueLineEdit->setText(QString::fromStdWString(salaryAttributeValue));
 
+    const std::wstring companyNameTagType = configureLoader->getCompanyNameHTML().tagType;
+    const std::wstring companyNameAttributeName = configureLoader->getCompanyNameHTML().attributeName;
+    const std::wstring companyNameAttributeValue = configureLoader->getCompanyNameHTML().attributeValue;
+    ui.companyNameHTMLTagTypeLineEdit->setText(QString::fromStdWString(companyNameTagType));
+    ui.companyNameHTMLAttributeNameLineEdit->setText(QString::fromStdWString(companyNameAttributeName));
+    ui.companyNameHTMLAttributeValueLineEdit->setText(QString::fromStdWString(companyNameAttributeValue));
+
+
     saveSetting();
     saveTagHTML();
     ui.statusBar->showMessage(tr("Reload configure file done !"));
@@ -477,6 +485,7 @@ void JobCrawlerGui::showJobResult()
             ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(tool));
         }
         
+        ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(jobData.companyName));
         ui.filterResultPlainTextEdit->appendPlainText(QString::fromStdString(jobData.salary));
         const QString jobUrlLink = QString::fromStdString(jobData.url);
         ui.filterResultPlainTextEdit->appendHtml("<a href='" + jobUrlLink + "'>" + jobUrlLink + "</a>");
@@ -641,6 +650,10 @@ void JobCrawlerGui::saveTagHTML()
     salaryHTML.tagType = ui.salaryHTMLTagTypeLineEdit->text().toStdWString();
     salaryHTML.attributeName = ui.salaryHTMLAttributeNameLineEdit->text().toStdWString();
     salaryHTML.attributeValue = ui.salaryHTMLAttributeValueLineEdit->text().toStdWString();
+                                 
+    companyNameHTML.tagType = ui.companyNameHTMLTagTypeLineEdit->text().toStdWString();
+    companyNameHTML.attributeName = ui.companyNameHTMLAttributeNameLineEdit->text().toStdWString();
+    companyNameHTML.attributeValue = ui.companyNameHTMLAttributeValueLineEdit->text().toStdWString();
 
     return;
 }
@@ -738,6 +751,11 @@ void JobCrawlerGui::filterJob()
         } else {
             jobData.salary = salary.front();
         }
+
+        jobData.companyName = 
+            htmlParser.getInnerHTML(companyNameHTML.tagType
+                , companyNameHTML.attributeName
+                , companyNameHTML.attributeValue).front();
 
         jobData.url = jd.url.toString().toStdString();
 
